@@ -1,0 +1,64 @@
+{
+  "summary": {
+    "review_state": "watch",
+    "review_label": "Weekly review pending operator decision",
+    "commit_gap": 108,
+    "last_checked_at": "2026-03-18T19:45:00Z",
+    "window_recommendation": "Review only until an approved weekend window is opened"
+  },
+  "live": {
+    "describe": "v2026.3.0-latest +412",
+    "core_sha": "749c572386477828679af18bf9fb19ac57dc8d6c",
+    "docker_sha": "cfc1ce28054d64d26808545fa5e69660a234c530"
+  },
+  "official": {
+    "describe": "v2026.3.0-latest +520",
+    "core_sha": "78c37cfd2b1bb8100cf12a78725f4716f814989a",
+    "docker_sha": "cfc1ce28054d64d26808545fa5e69660a234c530"
+  },
+  "checks": {
+    "front_proxy": {
+      "state": "ok",
+      "summary": "Healthy",
+      "detail": "nginx active, upstream traffic normal, only low-level TLS noise in recent logs."
+    },
+    "origin": {
+      "state": "ok",
+      "summary": "Healthy",
+      "detail": "app container up; unicorn, postgres, redis, nginx present; no current outage signatures."
+    },
+    "wireguard": {
+      "state": "ok",
+      "summary": "Healthy",
+      "detail": "Front to origin WireGuard path is current and serving the active upstream."
+    },
+    "ip_passthrough": {
+      "state": "ok",
+      "summary": "Verified",
+      "detail": "Origin access.log currently records real client IPs through the front proxy trust chain."
+    },
+    "sidekiq": {
+      "state": "warn",
+      "summary": "Candidate gate required",
+      "detail": "Live runtime is healthy but still carries a temporary hotfix; next rebuild must validate the candidate Sidekiq and connection_pool combination before signoff."
+    },
+    "backups": {
+      "state": "ok",
+      "summary": "DB-only backup current",
+      "detail": "Latest verified remote backup exists in discourse-backups; backup_with_uploads remains disabled to avoid duplicate media data."
+    },
+    "uploads_cdn": {
+      "state": "warn",
+      "summary": "Working but verify after rebuild",
+      "detail": "R2 uploads and files.rdfzer.com are healthy in production, but this path is not formally listed as supported in current Meta uploads docs."
+    }
+  },
+  "reports": {
+    "latest_report_path": "/shared/discourse-update-status/reports/review-2026-03-18.md"
+  },
+  "notes": [
+    "/admin/update is not authoritative for this pinned detached-commit deployment model.",
+    "Official Sidekiq upstream added connection_pool 3 forward compatibility, but current official Discourse latest avoids the old failure by using sidekiq 7.3.10 plus connection_pool 2.5.5.",
+    "Routine backups should remain DB-only while uploads stay in the separate R2 bucket."
+  ]
+}

@@ -1,0 +1,4 @@
+en:
+  site_settings:
+    discourse_update_status_card_enabled: "Enable the read-only admin dashboard update status card"
+    discourse_update_status_card_json_path: "Relative file name under /shared/discourse-update-status, or an absolute path kept under that directory"

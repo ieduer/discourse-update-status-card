@@ -1,0 +1,7 @@
+plugins:
+  discourse_update_status_card_enabled:
+    default: true
+    client: true
+  discourse_update_status_card_json_path:
+    default: "status.json"
+    client: false
