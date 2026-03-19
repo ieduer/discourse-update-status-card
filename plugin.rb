@@ -2,7 +2,7 @@
 
 # name: discourse-update-status-card
 # about: Read-only admin dashboard card for forum update readiness and maintenance status.
-# version: 0.1.0
+# version: 0.1.1
 # authors: ylsuen
 
 enabled_site_setting :discourse_update_status_card_enabled

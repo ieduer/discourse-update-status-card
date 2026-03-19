@@ -17,6 +17,36 @@ const CHECK_ORDER = [
   "uploads_cdn",
 ];
 
+function abbreviateMiddle(value, prefix = 14, suffix = 10) {
+  if (!value || typeof value !== "string") {
+    return "n/a";
+  }
+
+  if (value.length <= prefix + suffix + 3) {
+    return value;
+  }
+
+  return `${value.slice(0, prefix)}...${value.slice(-suffix)}`;
+}
+
+function basename(value) {
+  if (!value || typeof value !== "string") {
+    return "n/a";
+  }
+
+  const trimmed = value.replace(/\/+$/, "");
+  const parts = trimmed.split("/");
+  return parts[parts.length - 1] || value;
+}
+
+function compactSha(value) {
+  if (!value || typeof value !== "string") {
+    return "n/a";
+  }
+
+  return /^[0-9a-f]{16,}$/i.test(value) ? value.slice(0, 12) : value;
+}
+
 export default class DiscourseUpdateStatusCard extends Component {
   @tracked loading = false;
   @tracked response = null;
@@ -109,6 +139,82 @@ export default class DiscourseUpdateStatusCard extends Component {
     return this.meta.source_path || "n/a";
   }
 
+  get versionBlocks() {
+    return [
+      {
+        key: "live",
+        title: i18n("discourse_update_status_card.live"),
+        rows: [
+          {
+            key: "describe",
+            label: i18n("discourse_update_status_card.fields.describe"),
+            value: this.liveDescribeDisplay,
+            displayValue: this.liveDescribeDisplay,
+            code: true,
+          },
+          {
+            key: "core_sha",
+            label: i18n("discourse_update_status_card.fields.core_sha"),
+            value: this.liveCoreShaDisplay,
+            displayValue: compactSha(this.liveCoreShaDisplay),
+            code: true,
+          },
+          {
+            key: "docker_sha",
+            label: i18n("discourse_update_status_card.fields.docker_sha"),
+            value: this.liveDockerShaDisplay,
+            displayValue: compactSha(this.liveDockerShaDisplay),
+            code: true,
+          },
+        ],
+      },
+      {
+        key: "official",
+        title: i18n("discourse_update_status_card.official"),
+        rows: [
+          {
+            key: "describe",
+            label: i18n("discourse_update_status_card.fields.describe"),
+            value: this.officialDescribeDisplay,
+            displayValue: this.officialDescribeDisplay,
+            code: true,
+          },
+          {
+            key: "core_sha",
+            label: i18n("discourse_update_status_card.fields.core_sha"),
+            value: this.officialCoreShaDisplay,
+            displayValue: compactSha(this.officialCoreShaDisplay),
+            code: true,
+          },
+          {
+            key: "docker_sha",
+            label: i18n("discourse_update_status_card.fields.docker_sha"),
+            value: this.officialDockerShaDisplay,
+            displayValue: compactSha(this.officialDockerShaDisplay),
+            code: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  get reportEntries() {
+    return [
+      {
+        key: "report",
+        label: i18n("discourse_update_status_card.latest_report_path"),
+        fullValue: this.reportPathDisplay,
+        displayValue: basename(this.reportPathDisplay),
+      },
+      {
+        key: "source",
+        label: i18n("discourse_update_status_card.source_path"),
+        fullValue: this.sourcePathDisplay,
+        displayValue: basename(this.sourcePathDisplay),
+      },
+    ];
+  }
+
   get checkEntries() {
     const checks = this.payload.checks || {};
     const keys = [
@@ -129,6 +235,7 @@ export default class DiscourseUpdateStatusCard extends Component {
           check.summary ||
           i18n(`discourse_update_status_card.states.${state}`),
         detail: check.detail,
+        compactDetail: abbreviateMiddle(check.detail, 56, 18),
         state,
       };
     });
@@ -203,25 +310,28 @@ export default class DiscourseUpdateStatusCard extends Component {
 
       {{#if this.hasPayload}}
         <div class="update-status-card__summary-grid">
-          <div class="summary-item" data-state={{this.reviewState}}>
+          <div
+            class="summary-item summary-item--state"
+            data-state={{this.reviewState}}
+          >
             <span class="summary-label">
               {{i18n "discourse_update_status_card.review_state"}}
             </span>
-            <strong>{{this.reviewStateLabel}}</strong>
+            <strong class="summary-value">{{this.reviewStateLabel}}</strong>
           </div>
 
           <div class="summary-item">
             <span class="summary-label">
               {{i18n "discourse_update_status_card.commit_gap"}}
             </span>
-            <strong>{{this.commitGapDisplay}}</strong>
+            <strong class="summary-value">{{this.commitGapDisplay}}</strong>
           </div>
 
           <div class="summary-item">
             <span class="summary-label">
               {{i18n "discourse_update_status_card.last_checked_at"}}
             </span>
-            <strong>
+            <strong class="summary-value">
               {{#if this.summary.last_checked_at}}
                 {{formatDate this.summary.last_checked_at leaveAgo="true"}}
               {{else}}
@@ -230,50 +340,37 @@ export default class DiscourseUpdateStatusCard extends Component {
             </strong>
           </div>
 
-          <div class="summary-item">
+          <div class="summary-item summary-item--recommendation">
             <span class="summary-label">
               {{i18n "discourse_update_status_card.recommendation"}}
             </span>
-            <strong>{{this.recommendationDisplay}}</strong>
+            <p class="summary-copy">{{this.recommendationDisplay}}</p>
           </div>
         </div>
 
         <div class="update-status-card__versions">
-          <div class="version-block">
-            <h3>{{i18n "discourse_update_status_card.live"}}</h3>
-            <dl>
-              <div>
-                <dt>{{i18n "discourse_update_status_card.fields.describe"}}</dt>
-                <dd><code>{{this.liveDescribeDisplay}}</code></dd>
+          {{#each this.versionBlocks as |block|}}
+            <div class="version-block" data-kind={{block.key}}>
+              <div class="version-block__header">
+                <h3>{{block.title}}</h3>
               </div>
-              <div>
-                <dt>{{i18n "discourse_update_status_card.fields.core_sha"}}</dt>
-                <dd><code>{{this.liveCoreShaDisplay}}</code></dd>
-              </div>
-              <div>
-                <dt>{{i18n "discourse_update_status_card.fields.docker_sha"}}</dt>
-                <dd><code>{{this.liveDockerShaDisplay}}</code></dd>
-              </div>
-            </dl>
-          </div>
 
-          <div class="version-block">
-            <h3>{{i18n "discourse_update_status_card.official"}}</h3>
-            <dl>
-              <div>
-                <dt>{{i18n "discourse_update_status_card.fields.describe"}}</dt>
-                <dd><code>{{this.officialDescribeDisplay}}</code></dd>
-              </div>
-              <div>
-                <dt>{{i18n "discourse_update_status_card.fields.core_sha"}}</dt>
-                <dd><code>{{this.officialCoreShaDisplay}}</code></dd>
-              </div>
-              <div>
-                <dt>{{i18n "discourse_update_status_card.fields.docker_sha"}}</dt>
-                <dd><code>{{this.officialDockerShaDisplay}}</code></dd>
-              </div>
-            </dl>
-          </div>
+              <dl>
+                {{#each block.rows as |row|}}
+                  <div class="version-row">
+                    <dt>{{row.label}}</dt>
+                    <dd title={{row.value}}>
+                      {{#if row.code}}
+                        <code>{{row.displayValue}}</code>
+                      {{else}}
+                        {{row.displayValue}}
+                      {{/if}}
+                    </dd>
+                  </div>
+                {{/each}}
+              </dl>
+            </div>
+          {{/each}}
         </div>
 
         <div class="update-status-card__checks">
@@ -284,10 +381,14 @@ export default class DiscourseUpdateStatusCard extends Component {
               <div class="check-item" data-state={{check.state}}>
                 <div class="check-header">
                   <strong>{{check.label}}</strong>
-                  <span>{{check.summary}}</span>
+                  <span class="check-status" data-state={{check.state}}>
+                    {{check.summary}}
+                  </span>
                 </div>
                 {{#if check.detail}}
-                  <p>{{check.detail}}</p>
+                  <p class="check-detail" title={{check.detail}}>
+                    {{check.compactDetail}}
+                  </p>
                 {{/if}}
               </div>
             {{/each}}
@@ -296,14 +397,15 @@ export default class DiscourseUpdateStatusCard extends Component {
 
         <div class="update-status-card__reports">
           <h3>{{i18n "discourse_update_status_card.reports"}}</h3>
-          <p>
-            <strong>{{i18n "discourse_update_status_card.latest_report_path"}}:</strong>
-            <code>{{this.reportPathDisplay}}</code>
-          </p>
-          <p>
-            <strong>{{i18n "discourse_update_status_card.source_path"}}:</strong>
-            <code>{{this.sourcePathDisplay}}</code>
-          </p>
+          <div class="report-list">
+            {{#each this.reportEntries as |entry|}}
+              <div class="report-item">
+                <span class="summary-label">{{entry.label}}</span>
+                <strong>{{entry.displayValue}}</strong>
+                <code title={{entry.fullValue}}>{{entry.fullValue}}</code>
+              </div>
+            {{/each}}
+          </div>
         </div>
 
         <div class="update-status-card__notes">

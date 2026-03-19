@@ -4,6 +4,7 @@
   border: 1px solid var(--primary-low);
   border-radius: 12px;
   background: var(--secondary);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
 
   h2,
   h3,
@@ -13,6 +14,7 @@
 
   code {
     word-break: break-all;
+    font-size: var(--font-down-1);
   }
 }
 
@@ -53,7 +55,7 @@
 
 .update-status-card__summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -67,6 +69,10 @@
   border-radius: 10px;
   padding: 0.875rem 1rem;
   background: var(--secondary-very-high);
+}
+
+.summary-item {
+  min-height: 88px;
 }
 
 .discourse-update-status-card .summary-item[data-state="follow"] {
@@ -86,6 +92,29 @@
   margin-bottom: 0.35rem;
   color: var(--primary-medium);
   font-size: var(--font-down-1);
+  line-height: 1.3;
+}
+
+.summary-value {
+  display: block;
+  font-size: var(--font-up-1);
+  line-height: 1.2;
+}
+
+.summary-copy {
+  font-size: var(--font-0);
+  line-height: 1.45;
+  color: var(--primary);
+}
+
+.summary-item--recommendation {
+  grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+  .summary-item--recommendation {
+    grid-column: span 1;
+  }
 }
 
 .update-status-card__versions,
@@ -99,20 +128,46 @@
   margin-bottom: 1rem;
 }
 
-.discourse-update-status-card dl {
-  display: grid;
-  gap: 0.75rem;
-  margin: 0.75rem 0 0;
+.version-block__header {
+  margin-bottom: 0.75rem;
 }
 
-.discourse-update-status-card dl div {
+.discourse-update-status-card dl {
   display: grid;
-  gap: 0.25rem;
+  gap: 0.625rem;
+  margin: 0;
+}
+
+.version-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 135px) minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--primary-low);
+}
+
+.version-row:first-child {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .discourse-update-status-card dt {
   color: var(--primary-medium);
   font-size: var(--font-down-1);
+}
+
+.discourse-update-status-card dd {
+  margin: 0;
+}
+
+.version-row code {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  background: var(--secondary);
 }
 
 .update-status-card__checks {
@@ -140,20 +195,58 @@
 .check-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
   margin-bottom: 0.5rem;
 }
 
-.check-item p {
+.check-status {
+  flex: 0 0 auto;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  font-size: var(--font-down-1);
+  line-height: 1.2;
+  font-weight: 600;
+  background: var(--secondary);
+}
+
+.check-status[data-state="ok"] {
+  color: var(--success);
+}
+
+.check-status[data-state="warn"] {
+  color: var(--tertiary);
+}
+
+.check-status[data-state="fail"] {
+  color: var(--danger);
+}
+
+.check-detail {
   color: var(--primary-medium);
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 .update-status-card__reports {
   margin-bottom: 1rem;
 }
 
-.update-status-card__reports p + p {
-  margin-top: 0.75rem;
+.report-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.report-item {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.report-item code {
+  color: var(--primary-medium);
+  background: transparent;
+  padding: 0;
+  word-break: break-word;
 }
 
 .update-status-card__notes ul {
@@ -163,4 +256,13 @@
 
 .update-status-card__notes li + li {
   margin-top: 0.4rem;
+}
+
+@media (max-width: 640px) {
+  .update-status-card__header,
+  .check-header,
+  .version-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 }
