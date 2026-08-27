@@ -1,5 +1,11 @@
 # Discourse Update Status Card
 
+> **Archived 2026-08-26:** Discourse `v2026.8.0` replaced the legacy admin
+> dashboard surface and removed the `admin-dashboard-general-bottom` outlet
+> used by this plugin. Production has disabled
+> `discourse_update_status_card_enabled`. Do not reinstall or re-enable this
+> plugin during future upgrades. See [ARCHIVED.md](ARCHIVED.md).
+
 This plugin adds a read-only update readiness card to the admin dashboard
 general tab.
 
